@@ -1,4 +1,6 @@
-﻿const string url = "https://www.verisoft.cz";
+﻿using System.Diagnostics;
+
+const string url = "https://www.verisoft.cz";
 Uri uri = new(url);
 
 var response = await GetResponseFromUrlAsync_WithAsyncAwait(uri);
@@ -45,6 +47,10 @@ Task.Run(async () =>
     var result = await GetResponseFromUrlAsync_WithAsyncAwait(new Uri(url));
     WriteResponseDetailsToConsole(result);
 });
+
+Console.ReadKey();
+
+await ValueTaskExample();
 
 Console.ReadKey();
 
@@ -109,3 +115,33 @@ static void WriteExceptionDetailsToConsole(Exception exception)
     Console.WriteLine(exception.StackTrace);
     Console.WriteLine();
 }
+
+static async Task ValueTaskExample()
+{
+    TimeSpan elapsedExecutionTime = new();
+    string[] values = [];
+    for (int i = 0; i < 10; i++)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        values = await GetValuesAsync(values);
+        stopwatch.Stop();
+        elapsedExecutionTime += stopwatch.Elapsed;
+    }
+
+    Console.WriteLine(elapsedExecutionTime);
+}
+
+static async ValueTask<string[]> GetValuesAsync(string[] values)
+{
+    ArgumentNullException.ThrowIfNull(values);
+
+    if (values.Length > 0)
+    {
+        return values;
+    }
+
+    return await GetValuesFromSomewhereAsync();
+}
+
+static Task<string[]> GetValuesFromSomewhereAsync()
+    => Task.FromResult<string[]>(["insert", "some", "dumb", "text", "here"]);
